@@ -3,7 +3,6 @@ import pandas as pd
 import joblib
 import plotly.express as px
 from pathlib import Path
-import textwrap
 
 # =====================================================
 # 1. CONFIGURATION
@@ -32,30 +31,19 @@ FRUITS = ["Banana", "Orange", "Pineapple", "Tomato"]
 
 
 # =====================================================
-# 2. HTML HELPER
-# =====================================================
-
-def render_html(content):
-    st.markdown(
-        textwrap.dedent(content).strip(),
-        unsafe_allow_html=True
-    )
-
-
-# =====================================================
-# 3. COMPLETE DESIGN AND CSS
+# 2. PROFESSIONAL THEME
 # =====================================================
 
 st.markdown("""
 <style>
+/* Main background */
+.stApp {
+    background-color: #F3F7F2;
+    color: #263D32;
+}
 
-/* MAIN BACKGROUND */
-
-.stApp,
-[data-testid="stAppViewContainer"],
 [data-testid="stMain"] {
-    background-color: #F3F7F2 !important;
-    color: #263D32 !important;
+    background-color: #F3F7F2;
 }
 
 .block-container {
@@ -64,65 +52,39 @@ st.markdown("""
     padding-bottom: 3rem;
 }
 
-/* TEXT */
-
-.stApp p,
-.stApp li,
-.stApp label,
-.stApp [data-testid="stMarkdownContainer"] p {
-    color: #40574B !important;
-}
-
-.stApp h1,
-.stApp h2,
-.stApp h3,
-.stApp h4,
-.stApp h5 {
-    color: #173D2D !important;
+/* Headings */
+.stApp h1, .stApp h2, .stApp h3,
+.stApp h4 {
+    color: #174C36 !important;
     font-weight: 750 !important;
 }
 
-[data-testid="stCaptionContainer"],
-[data-testid="stCaptionContainer"] p {
+/* Normal text */
+.stApp p, .stApp li,
+.stApp label {
+    color: #40574B !important;
+}
+
+[data-testid="stCaptionContainer"] {
     color: #536B5C !important;
 }
 
-/* HEADER */
-
-.main-title {
-    color: #176B48 !important;
-    font-size: 43px;
-    font-weight: 850;
-    letter-spacing: -1px;
-}
-
-.subtitle {
-    color: #536B5C !important;
-    font-size: 17px;
-}
-
-/* SIDEBAR */
-
+/* Sidebar */
 [data-testid="stSidebar"] {
-    background-color: #123B2C !important;
+    background-color: #123B2C;
 }
 
 [data-testid="stSidebar"] * {
-    color: #F2F8F1 !important;
+    color: #FFFFFF !important;
 }
 
-[data-testid="stSidebar"] p {
-    color: #D5E8DA !important;
-}
-
-/* METRICS */
-
+/* Metric cards */
 [data-testid="stMetric"] {
-    background: #FFFFFF !important;
-    padding: 20px !important;
-    border-radius: 15px !important;
-    border: 1px solid #D8E5D9 !important;
-    box-shadow: 0 3px 12px rgba(26,74,48,0.06);
+    background-color: #FFFFFF;
+    border: 1px solid #D7E5D9;
+    border-radius: 15px;
+    padding: 19px;
+    box-shadow: 0 3px 12px rgba(20,70,45,0.05);
 }
 
 [data-testid="stMetricLabel"],
@@ -130,91 +92,89 @@ st.markdown("""
     color: #536B5C !important;
 }
 
-[data-testid="stMetricValue"],
-[data-testid="stMetricValue"] div {
+[data-testid="stMetricValue"] {
     color: #176B48 !important;
-    font-weight: 800 !important;
+    font-weight: 800;
 }
 
-/* INPUTS */
+/* Buttons */
+.stButton > button,
+.stFormSubmitButton > button,
+.stDownloadButton > button {
+    background-color: #176B48 !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    min-height: 43px;
+}
 
+.stButton > button p,
+.stFormSubmitButton > button p,
+.stDownloadButton > button p {
+    color: #FFFFFF !important;
+}
+
+.stButton > button:hover {
+    background-color: #104C33 !important;
+    border: 1px solid #104C33 !important;
+}
+
+/* Input boxes */
 .stTextInput input,
 .stNumberInput input,
 .stTextArea textarea {
-    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
     color: #263D32 !important;
+    -webkit-text-fill-color: #263D32 !important;
     border: 1px solid #B9CDBD !important;
     border-radius: 9px !important;
-    -webkit-text-fill-color: #263D32 !important;
 }
 
+/* Select boxes */
 .stSelectbox [data-baseweb="select"] {
-    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
 }
 
-.stSelectbox [data-baseweb="select"] *,
-[data-baseweb="menu"] * {
+.stSelectbox [data-baseweb="select"] * {
     color: #263D32 !important;
 }
 
 [data-baseweb="popover"],
 [data-baseweb="menu"] {
-    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
 }
 
-.stTextInput label,
-.stNumberInput label,
-.stSelectbox label,
-.stFileUploader label {
+[data-baseweb="menu"] * {
     color: #263D32 !important;
-    font-weight: 650 !important;
 }
 
-/* BUTTONS */
-
-.stButton > button,
-.stFormSubmitButton > button,
-.stDownloadButton > button {
-    background: #176B48 !important;
-    color: #FFFFFF !important;
-    border: none !important;
-    border-radius: 10px !important;
-    padding: 11px 20px !important;
-    font-weight: 700 !important;
-}
-
-.stButton > button *,
-.stFormSubmitButton > button *,
-.stDownloadButton > button * {
-    color: #FFFFFF !important;
-}
-
-.stButton > button:hover,
-.stFormSubmitButton > button:hover {
-    background: #104C33 !important;
-}
-
-/* FORMS */
-
+/* Forms */
 [data-testid="stForm"] {
-    background: #FFFFFF !important;
-    border: 1px solid #DCE9DD !important;
-    border-radius: 15px !important;
-    padding: 20px !important;
+    background-color: #FFFFFF;
+    border: 1px solid #DCE9DD;
+    border-radius: 15px;
+    padding: 20px;
 }
 
-/* DATA TABLE */
-
-[data-testid="stDataFrame"] {
-    background: #FFFFFF !important;
+/* Fruit photographs */
+[data-testid="stImage"] img {
+    height: 190px !important;
+    width: 100% !important;
+    object-fit: cover !important;
     border-radius: 12px !important;
 }
 
-/* FILE UPLOADER */
+/* Cards */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    border-color: #D8E5D9 !important;
+    border-radius: 15px !important;
+}
 
+/* File uploader */
 [data-testid="stFileUploader"] {
-    background: #FFFFFF !important;
-    border: 1px dashed #9CB9A2 !important;
+    background-color: #FFFFFF;
+    border: 1px dashed #9CB9A2;
     border-radius: 12px;
     padding: 12px;
 }
@@ -223,137 +183,29 @@ st.markdown("""
     color: #263D32 !important;
 }
 
-/* HERO */
-
-.hero-box {
-    background: linear-gradient(120deg, #123B2C, #26734D);
-    padding: 38px;
-    border-radius: 18px;
-    margin-bottom: 25px;
-    box-shadow: 0 5px 18px rgba(18,59,44,0.12);
-}
-
-.hero-title {
-    color: #FFFFFF !important;
-    font-size: 36px;
-    font-weight: 850;
-    margin-bottom: 10px;
-}
-
-.hero-description {
-    color: #F0F8F1 !important;
-    font-size: 19px;
-}
-
-.hero-extra {
-    color: #DCEFE1 !important;
-    font-size: 15px;
-}
-
-/* FRUIT IMAGE GALLERY */
-
-[data-testid="stImage"] img {
-    border-radius: 13px !important;
-    object-fit: cover !important;
-}
-
-.fruit-name {
-    text-align: center;
-    color: #176B48 !important;
-    font-size: 19px;
-    font-weight: 800;
-    padding-top: 8px;
-}
-
-.fruit-description {
-    text-align: center;
-    color: #536B5C !important;
-    font-size: 13px;
-}
-
-/* WORKFLOW */
-
-.workflow-card {
-    background: #FFFFFF;
-    border: 1px solid #DCE9DD;
-    padding: 22px;
-    border-radius: 14px;
-    text-align: center;
-    min-height: 170px;
-}
-
-.workflow-card h3 {
-    color: #176B48 !important;
-}
-
-/* ENVIRONMENTAL CARD */
-
-.parameter-card {
-    background: #E6F1E7;
-    border: 1px solid #C7DDCA;
-    padding: 20px;
+/* Dataframes */
+[data-testid="stDataFrame"] {
+    background-color: #FFFFFF;
     border-radius: 12px;
 }
 
-.parameter-card h4 {
-    color: #176B48 !important;
-}
-
-.parameter-card p {
-    color: #40574B !important;
-}
-
-/* PREDICTION RESULTS */
-
-.result-good {
-    background: #E5F4E9;
-    border: 2px solid #9BCFAC;
-    border-radius: 15px;
-    padding: 25px;
+/* Footer */
+.footer {
     text-align: center;
-}
-
-.result-good h2,
-.result-good p {
-    color: #176B48 !important;
-}
-
-.result-bad {
-    background: #FCE9E7;
-    border: 2px solid #E5AAA5;
-    border-radius: 15px;
-    padding: 25px;
-    text-align: center;
-}
-
-.result-bad h2,
-.result-bad p {
-    color: #A93430 !important;
-}
-
-/* FOOTER */
-
-.footer-text {
-    text-align: center;
-    color: #536B5C !important;
+    color: #536B5C;
+    padding: 18px;
     font-size: 13px;
-    padding: 15px;
-}
-
-.footer-text p {
-    color: #536B5C !important;
 }
 
 hr {
     border-color: #D8E5D9 !important;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
 
 # =====================================================
-# 4. LOAD TRAINED MODEL
+# 3. LOAD MODEL
 # =====================================================
 
 @st.cache_resource
@@ -391,7 +243,7 @@ except Exception as e:
 
 
 # =====================================================
-# 5. PREDICTION FUNCTION
+# 4. PREDICTION FUNCTION
 # =====================================================
 
 def predict_data(data):
@@ -419,7 +271,7 @@ def predict_data(data):
 
 
 # =====================================================
-# 6. PREDICTION DISPLAY FUNCTION
+# 5. DISPLAY PREDICTION RESULTS
 # =====================================================
 
 def display_prediction(result):
@@ -437,34 +289,20 @@ def display_prediction(result):
 
     if prediction.strip().lower() == "good":
 
-        render_html("""
-        <div class="result-good">
-            <h2>✓ GOOD QUALITY</h2>
-            <p>
-                The model predicts that this sample
-                belongs to the GOOD classification.
-            </p>
-        </div>
-        """)
+        st.success(
+            "✓ Predicted Classification: GOOD"
+        )
 
     else:
 
-        render_html("""
-        <div class="result-bad">
-            <h2>⚠ BAD QUALITY</h2>
-            <p>
-                The model predicts that this sample
-                belongs to the BAD classification.
-            </p>
-        </div>
-        """)
-
-    st.write("")
+        st.error(
+            "⚠ Predicted Classification: BAD"
+        )
 
     c1, c2 = st.columns(2)
 
     c1.metric(
-        "Predicted Classification",
+        "Predicted Class",
         prediction.upper()
     )
 
@@ -475,7 +313,7 @@ def display_prediction(result):
 
     probability_data = pd.DataFrame({
 
-        "Class": model.classes_,
+        "Class": list(model.classes_),
 
         "Probability (%)": [
             result[f"{label} Score (%)"].iloc[0]
@@ -517,37 +355,23 @@ def display_prediction(result):
 
 
 # =====================================================
-# 7. HEADER
+# 6. HEADER
 # =====================================================
 
-render_html("""
-<div class="main-title">🍃 BioSpoil AI</div>
+st.title("🍃 BioSpoil AI")
 
-<div class="subtitle">
-AI-Based Food Quality Classification & Environmental Analytics
-</div>
-""")
-
-
-# =====================================================
-# 8. SIDEBAR
-# =====================================================
-
-render_html("""
-<style>
-[data-testid="stSidebar"] h1 {
-    color: #FFFFFF !important;
-}
-</style>
-""")
-
-st.sidebar.markdown(
-    """
-    # 🍃 BioSpoil AI
-
-    Food Quality Intelligence
-    """
+st.caption(
+    "AI-Based Food Quality Classification & Environmental Analytics"
 )
+
+
+# =====================================================
+# 7. SIDEBAR NAVIGATION
+# =====================================================
+
+st.sidebar.title("🍃 BioSpoil AI")
+
+st.sidebar.caption("Food Quality Intelligence")
 
 st.sidebar.divider()
 
@@ -567,36 +391,49 @@ st.sidebar.caption(
     "Developed using Python, Scikit-learn and Streamlit"
 )
 
-st.sidebar.caption("AI Research Prototype | 2026")
+st.sidebar.caption("Research Prototype | 2026")
 
 
 # =====================================================
-# 9. HOME PAGE / OVERVIEW
+# 8. OVERVIEW / HOMEPAGE
 # =====================================================
 
 if page == "Overview":
 
-    # HERO BANNER
+    # HERO SECTION - NATIVE STREAMLIT ONLY
 
-    render_html("""
-    <div class="hero-box">
+    with st.container(border=True):
 
-        <div class="hero-title">
-            🍃 Welcome to BioSpoil AI
-        </div>
+        st.markdown("## 🍃 Welcome to BioSpoil AI")
 
-        <p class="hero-description">
-            Smarter Food Quality Classification
-            Through Artificial Intelligence
-        </p>
+        st.subheader(
+            "Smarter Food Quality Classification "
+            "Through Artificial Intelligence"
+        )
 
-        <p class="hero-extra">
-            Explore how environmental conditions can help
-            predict food quality using Machine Learning.
-        </p>
+        st.write(
+            "Explore how environmental conditions can help "
+            "predict food quality using Machine Learning."
+        )
 
-    </div>
-    """)
+        st.write(
+            "An interactive research prototype combining "
+            "environmental parameters and predictive analytics."
+        )
+
+        if st.button(
+            "Explore Food Analysis ↓",
+            use_container_width=False
+        ):
+            st.session_state["explore_food"] = True
+
+    if st.session_state.get("explore_food", False):
+        st.info(
+            "Explore the food categories below or navigate "
+            "to Single Prediction to analyse a sample."
+        )
+
+    st.write("")
 
     # PLATFORM METRICS
 
@@ -611,9 +448,7 @@ if page == "Overview":
 
     st.divider()
 
-    # =================================================
     # FOUR FRUIT IMAGE CARDS
-    # =================================================
 
     st.subheader("🍎 Explore Food Categories")
 
@@ -679,15 +514,11 @@ if page == "Overview":
                     use_container_width=True
                 )
 
-                render_html(f"""
-                <div class="fruit-name">
-                    {fruit["emoji"]} {fruit["name"]}
-                </div>
+                st.markdown(
+                    f"### {fruit['emoji']} {fruit['name']}"
+                )
 
-                <div class="fruit-description">
-                    {fruit["description"]}
-                </div>
-                """)
+                st.caption(fruit["description"])
 
     st.divider()
 
@@ -703,32 +534,27 @@ if page == "Overview":
     parameter_info = {
 
         "Food Type": (
-            "Fruit",
-            "Categorical",
+            "Fruit | Categorical",
             "Identifies the food category being analysed."
         ),
 
         "Temperature": (
-            "Temperature (°C)",
-            "Numerical",
+            "Temperature (°C) | Numerical",
             "Represents the recorded surrounding temperature."
         ),
 
         "Humidity": (
-            "Humidity (%)",
-            "Numerical",
+            "Humidity (%) | Numerical",
             "Represents the relative humidity of the environment."
         ),
 
         "Light Intensity": (
-            "Light (dataset units)",
-            "Numerical",
+            "Light (dataset units) | Numerical",
             "Represents the recorded light intensity."
         ),
 
         "CO₂": (
-            "CO₂ (dataset units)",
-            "Numerical",
+            "CO₂ (dataset units) | Numerical",
             "Represents the carbon dioxide measurement "
             "recorded in the dataset."
         )
@@ -740,14 +566,15 @@ if page == "Overview":
         list(parameter_info.keys())
     )
 
-    details = parameter_info[selected_parameter]
+    with st.container(border=True):
 
-    render_html(f"""
-    <div class="parameter-card">
-        <h4>{details[0]} | {details[1]}</h4>
-        <p>{details[2]}</p>
-    </div>
-    """)
+        st.markdown(
+            f"### {parameter_info[selected_parameter][0]}"
+        )
+
+        st.write(
+            parameter_info[selected_parameter][1]
+        )
 
     st.divider()
 
@@ -757,60 +584,54 @@ if page == "Overview":
 
     step1, step2, step3 = st.columns(3)
 
-    workflow = [
+    with step1:
 
-        (
-            "📥",
-            "01. Input",
-            "Enter food type and environmental measurements."
-        ),
+        with st.container(border=True):
 
-        (
-            "🧠",
-            "02. Analyse",
-            "The trained Random Forest model processes "
-            "the input features."
-        ),
+            st.markdown("## 📥")
 
-        (
-            "📊",
-            "03. Predict",
-            "Obtain a Good/Bad classification "
-            "and model confidence."
-        )
+            st.markdown("### 01. Input")
 
-    ]
+            st.write(
+                "Enter food type and environmental measurements."
+            )
 
-    for col, item in zip(
-        [step1, step2, step3],
-        workflow
-    ):
+    with step2:
 
-        with col:
+        with st.container(border=True):
 
-            render_html(f"""
-            <div class="workflow-card">
+            st.markdown("## 🧠")
 
-                <div style="font-size:35px;">
-                    {item[0]}
-                </div>
+            st.markdown("### 02. Analyse")
 
-                <h3>{item[1]}</h3>
+            st.write(
+                "The trained Random Forest model processes "
+                "the input features."
+            )
 
-                <p>{item[2]}</p>
+    with step3:
 
-            </div>
-            """)
+        with st.container(border=True):
+
+            st.markdown("## 📊")
+
+            st.markdown("### 03. Predict")
+
+            st.write(
+                "Obtain a Good/Bad classification "
+                "and model confidence."
+            )
 
     st.divider()
 
-    # HOMEPAGE INTERACTIVE PREDICTION
+    # INTERACTIVE HOMEPAGE PREDICTION
 
     st.subheader("🔬 Try BioSpoil AI")
 
     st.write(
-        "Enter environmental measurements and explore "
-        "the model prediction directly from the homepage."
+        "Enter a sample's environmental conditions "
+        "and explore the model prediction directly "
+        "from the homepage."
     )
 
     with st.form("home_prediction_form"):
@@ -882,7 +703,7 @@ if page == "Overview":
 
     st.divider()
 
-    st.warning(
+    st.info(
         "BioSpoil AI is a research prototype. "
         "Predictions represent dataset-defined classification "
         "labels and do not establish actual food safety "
@@ -891,7 +712,7 @@ if page == "Overview":
 
 
 # =====================================================
-# 10. SINGLE PREDICTION
+# 9. SINGLE PREDICTION
 # =====================================================
 
 elif page == "Single Prediction":
@@ -967,7 +788,7 @@ elif page == "Single Prediction":
 
 
 # =====================================================
-# 11. BATCH ANALYSIS
+# 10. BATCH ANALYSIS
 # =====================================================
 
 elif page == "Batch Analysis":
@@ -1017,14 +838,18 @@ elif page == "Batch Analysis":
 
             elif batch.empty:
 
-                st.error("The uploaded CSV contains no data.")
+                st.error(
+                    "The uploaded CSV contains no data."
+                )
 
             elif st.button(
                 "🚀 Run Batch Prediction",
                 use_container_width=True
             ):
 
-                st.session_state["batch_results"] = predict_data(batch)
+                st.session_state["batch_results"] = (
+                    predict_data(batch)
+                )
 
             if "batch_results" in st.session_state:
 
@@ -1112,7 +937,7 @@ elif page == "Batch Analysis":
 
 
 # =====================================================
-# 12. ABOUT THE MODEL
+# 11. ABOUT THE MODEL
 # =====================================================
 
 elif page == "About the Model":
@@ -1177,21 +1002,23 @@ elif page == "About the Model":
 
     with c1:
 
-        render_html("""
-        <div class="result-good">
-            <h2>✓ GOOD</h2>
-            <p>Model-defined Good classification.</p>
-        </div>
-        """)
+        with st.container(border=True):
+
+            st.success("✓ GOOD")
+
+            st.write(
+                "Model-defined Good classification."
+            )
 
     with c2:
 
-        render_html("""
-        <div class="result-bad">
-            <h2>⚠ BAD</h2>
-            <p>Model-defined Bad classification.</p>
-        </div>
-        """)
+        with st.container(border=True):
+
+            st.error("⚠ BAD")
+
+            st.write(
+                "Model-defined Bad classification."
+            )
 
     st.divider()
 
@@ -1231,44 +1058,23 @@ GOOD / BAD
 
 
 # =====================================================
-# 13. FOOTER
+# 12. FOOTER
 # =====================================================
 
 st.divider()
 
-render_html("""
-<div class="footer-text">
-
-    <b>🍃 BioSpoil AI</b>
-
-    <p>
+st.markdown(
+    """
+    <div class="footer">
+        🍃 <b>BioSpoil AI</b>
+        <br>
         AI-Based Food Quality Classification
         & Environmental Analytics
-    </p>
-
-    <p>
+        <br>
         Machine Learning Research Prototype | 2026
-    </p>
-
-</div>
-""")
-
- 
-
-
-
-
-
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
    
-
-   
-
- 
-   
-
-
-    
-
-  
-         
