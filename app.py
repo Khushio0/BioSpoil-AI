@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 import joblib
 import plotly.express as px
-import plotly.graph_objects as go
 from pathlib import Path
+import textwrap
 
 # =====================================================
 # 1. CONFIGURATION
@@ -17,7 +17,6 @@ st.set_page_config(
 )
 
 BASE_DIR = Path(__file__).resolve().parent
-
 MODEL_FILENAME = "BioSpoil_AI_Best_Model.pkl"
 MODEL_PATH = BASE_DIR / MODEL_FILENAME
 
@@ -31,28 +30,32 @@ FEATURES = [
 
 FRUITS = ["Banana", "Orange", "Pineapple", "Tomato"]
 
-GREEN = "#176B48"
-DARK_GREEN = "#123B2C"
-LIGHT_GREEN = "#E6F1E7"
-TEXT = "#263D32"
+
+# =====================================================
+# 2. HTML HELPER
+# =====================================================
+
+def render_html(content):
+    st.markdown(
+        textwrap.dedent(content).strip(),
+        unsafe_allow_html=True
+    )
 
 
 # =====================================================
-# 2. CUSTOM DESIGN AND CSS
+# 3. COMPLETE DESIGN AND CSS
 # =====================================================
 
 st.markdown("""
 <style>
 
-/* Main application background */
+/* MAIN BACKGROUND */
 
-.stApp {
-    background-color: #F3F7F2;
-    color: #263D32;
-}
-
-[data-testid="stAppViewContainer"] {
-    background-color: #F3F7F2;
+.stApp,
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"] {
+    background-color: #F3F7F2 !important;
+    color: #263D32 !important;
 }
 
 .block-container {
@@ -61,27 +64,30 @@ st.markdown("""
     padding-bottom: 3rem;
 }
 
-/* Text visibility */
+/* TEXT */
 
 .stApp p,
+.stApp li,
 .stApp label,
-.stApp li {
-    color: #40574B;
+.stApp [data-testid="stMarkdownContainer"] p {
+    color: #40574B !important;
 }
 
-.stMarkdown p {
-    line-height: 1.7;
-    color: #40574B;
-}
-
-/* Headings */
-
-h1, h2, h3, h4 {
+.stApp h1,
+.stApp h2,
+.stApp h3,
+.stApp h4,
+.stApp h5 {
     color: #173D2D !important;
     font-weight: 750 !important;
 }
 
-/* Main title */
+[data-testid="stCaptionContainer"],
+[data-testid="stCaptionContainer"] p {
+    color: #536B5C !important;
+}
+
+/* HEADER */
 
 .main-title {
     color: #176B48 !important;
@@ -91,150 +97,181 @@ h1, h2, h3, h4 {
 }
 
 .subtitle {
-    color: #60776A !important;
+    color: #536B5C !important;
     font-size: 17px;
-    margin-top: 5px;
 }
 
-/* Sidebar */
+/* SIDEBAR */
 
 [data-testid="stSidebar"] {
-    background-color: #123B2C;
+    background-color: #123B2C !important;
 }
 
 [data-testid="stSidebar"] * {
     color: #F2F8F1 !important;
 }
 
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
-    color: #D2E5D7 !important;
+[data-testid="stSidebar"] p {
+    color: #D5E8DA !important;
 }
 
-/* Sidebar navigation */
-
-[data-testid="stSidebar"] [role="radiogroup"] label {
-    border-radius: 9px;
-    padding: 8px;
-}
-
-/* Metric cards */
+/* METRICS */
 
 [data-testid="stMetric"] {
-    background: #FFFFFF;
-    padding: 20px;
-    border-radius: 15px;
-    border: 1px solid #DCE9DD;
+    background: #FFFFFF !important;
+    padding: 20px !important;
+    border-radius: 15px !important;
+    border: 1px solid #D8E5D9 !important;
     box-shadow: 0 3px 12px rgba(26,74,48,0.06);
 }
 
-[data-testid="stMetricLabel"] {
-    color: #60776A !important;
-    font-weight: 600;
+[data-testid="stMetricLabel"],
+[data-testid="stMetricLabel"] p {
+    color: #536B5C !important;
 }
 
-[data-testid="stMetricValue"] {
+[data-testid="stMetricValue"],
+[data-testid="stMetricValue"] div {
     color: #176B48 !important;
-    font-weight: 800;
+    font-weight: 800 !important;
 }
 
-[data-testid="stMetricDelta"] {
-    color: #21865A !important;
+/* INPUTS */
+
+.stTextInput input,
+.stNumberInput input,
+.stTextArea textarea {
+    background: #FFFFFF !important;
+    color: #263D32 !important;
+    border: 1px solid #B9CDBD !important;
+    border-radius: 9px !important;
+    -webkit-text-fill-color: #263D32 !important;
 }
 
-/* Buttons */
+.stSelectbox [data-baseweb="select"] {
+    background: #FFFFFF !important;
+}
+
+.stSelectbox [data-baseweb="select"] *,
+[data-baseweb="menu"] * {
+    color: #263D32 !important;
+}
+
+[data-baseweb="popover"],
+[data-baseweb="menu"] {
+    background: #FFFFFF !important;
+}
+
+.stTextInput label,
+.stNumberInput label,
+.stSelectbox label,
+.stFileUploader label {
+    color: #263D32 !important;
+    font-weight: 650 !important;
+}
+
+/* BUTTONS */
 
 .stButton > button,
 .stFormSubmitButton > button,
 .stDownloadButton > button {
-    background-color: #176B48;
-    color: white !important;
-    border: none;
-    border-radius: 10px;
-    padding: 11px 22px;
-    font-weight: 650;
-    transition: 0.2s ease;
+    background: #176B48 !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 11px 20px !important;
+    font-weight: 700 !important;
+}
+
+.stButton > button *,
+.stFormSubmitButton > button *,
+.stDownloadButton > button * {
+    color: #FFFFFF !important;
 }
 
 .stButton > button:hover,
-.stFormSubmitButton > button:hover,
-.stDownloadButton > button:hover {
-    background-color: #104C33;
-    color: white !important;
-    border: none;
+.stFormSubmitButton > button:hover {
+    background: #104C33 !important;
 }
 
-/* Inputs */
+/* FORMS */
 
-.stTextInput input,
-.stNumberInput input,
-.stSelectbox div[data-baseweb="select"],
-.stTextArea textarea {
-    background-color: white !important;
-    color: #263D32 !important;
-    border-radius: 8px;
+[data-testid="stForm"] {
+    background: #FFFFFF !important;
+    border: 1px solid #DCE9DD !important;
+    border-radius: 15px !important;
+    padding: 20px !important;
 }
 
-/* Dataframes */
+/* DATA TABLE */
 
 [data-testid="stDataFrame"] {
-    border: 1px solid #DCE9DD;
+    background: #FFFFFF !important;
+    border-radius: 12px !important;
+}
+
+/* FILE UPLOADER */
+
+[data-testid="stFileUploader"] {
+    background: #FFFFFF !important;
+    border: 1px dashed #9CB9A2 !important;
     border-radius: 12px;
+    padding: 12px;
 }
 
-/* Alerts */
-
-[data-testid="stAlert"] {
-    border-radius: 12px;
+[data-testid="stFileUploader"] * {
+    color: #263D32 !important;
 }
 
-/* Tabs */
-
-.stTabs [data-baseweb="tab"] {
-    color: #40574B;
-    font-weight: 600;
-}
-
-.stTabs [aria-selected="true"] {
-    color: #176B48 !important;
-}
-
-/* Dividers */
-
-hr {
-    border-color: #DCE8DD;
-}
-
-/* Hero section */
+/* HERO */
 
 .hero-box {
     background: linear-gradient(120deg, #123B2C, #26734D);
-    padding: 35px;
+    padding: 38px;
     border-radius: 18px;
     margin-bottom: 25px;
+    box-shadow: 0 5px 18px rgba(18,59,44,0.12);
 }
 
 .hero-title {
-    color: white !important;
+    color: #FFFFFF !important;
     font-size: 36px;
     font-weight: 850;
+    margin-bottom: 10px;
 }
 
 .hero-description {
-    color: #E1F0E5 !important;
-    font-size: 16px;
+    color: #F0F8F1 !important;
+    font-size: 19px;
 }
 
-/* Food category cards */
+.hero-extra {
+    color: #DCEFE1 !important;
+    font-size: 15px;
+}
 
-.food-card {
-    padding: 20px 10px;
-    border-radius: 14px;
+/* FRUIT IMAGE GALLERY */
+
+[data-testid="stImage"] img {
+    border-radius: 13px !important;
+    object-fit: cover !important;
+}
+
+.fruit-name {
     text-align: center;
-    border: 1px solid #E5E9DC;
-    min-height: 125px;
+    color: #176B48 !important;
+    font-size: 19px;
+    font-weight: 800;
+    padding-top: 8px;
 }
 
-/* Workflow cards */
+.fruit-description {
+    text-align: center;
+    color: #536B5C !important;
+    font-size: 13px;
+}
+
+/* WORKFLOW */
 
 .workflow-card {
     background: #FFFFFF;
@@ -242,34 +279,73 @@ hr {
     padding: 22px;
     border-radius: 14px;
     text-align: center;
-    min-height: 145px;
+    min-height: 170px;
 }
 
-/* Prediction result */
+.workflow-card h3 {
+    color: #176B48 !important;
+}
+
+/* ENVIRONMENTAL CARD */
+
+.parameter-card {
+    background: #E6F1E7;
+    border: 1px solid #C7DDCA;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.parameter-card h4 {
+    color: #176B48 !important;
+}
+
+.parameter-card p {
+    color: #40574B !important;
+}
+
+/* PREDICTION RESULTS */
 
 .result-good {
     background: #E5F4E9;
-    border: 1px solid #A8D9B5;
+    border: 2px solid #9BCFAC;
     border-radius: 15px;
-    padding: 24px;
+    padding: 25px;
     text-align: center;
+}
+
+.result-good h2,
+.result-good p {
+    color: #176B48 !important;
 }
 
 .result-bad {
     background: #FCE9E7;
-    border: 1px solid #EAB6B1;
+    border: 2px solid #E5AAA5;
     border-radius: 15px;
-    padding: 24px;
+    padding: 25px;
     text-align: center;
 }
 
-/* Footer */
+.result-bad h2,
+.result-bad p {
+    color: #A93430 !important;
+}
+
+/* FOOTER */
 
 .footer-text {
     text-align: center;
-    color: #718578;
+    color: #536B5C !important;
     font-size: 13px;
     padding: 15px;
+}
+
+.footer-text p {
+    color: #536B5C !important;
+}
+
+hr {
+    border-color: #D8E5D9 !important;
 }
 
 </style>
@@ -277,7 +353,7 @@ hr {
 
 
 # =====================================================
-# 3. LOAD TRAINED MODEL
+# 4. LOAD TRAINED MODEL
 # =====================================================
 
 @st.cache_resource
@@ -288,42 +364,34 @@ def load_model():
     if not model_path.is_file():
 
         matching_files = [
-            file for file in BASE_DIR.iterdir()
-            if file.is_file()
-            and file.name.lower() == MODEL_FILENAME.lower()
+            f for f in BASE_DIR.iterdir()
+            if f.is_file()
+            and f.name.lower() == MODEL_FILENAME.lower()
         ]
 
         if matching_files:
             model_path = matching_files[0]
 
     if not model_path.is_file():
-
         raise FileNotFoundError(
-            f"{MODEL_FILENAME} was not found. "
-            "Keep the model file in the same directory as app.py."
+            f"{MODEL_FILENAME} not found. "
+            "Keep the model in the same folder as app.py."
         )
 
     return joblib.load(model_path)
 
 
 try:
-
     model = load_model()
 
 except Exception as e:
-
     st.error(f"Model loading error: {e}")
-
-    st.info(
-        "Ensure BioSpoil_AI_Best_Model.pkl "
-        "is uploaded to your GitHub repository."
-    )
-
+    st.info("Check your GitHub model file.")
     st.stop()
 
 
 # =====================================================
-# 4. PREDICTION FUNCTION
+# 5. PREDICTION FUNCTION
 # =====================================================
 
 def predict_data(data):
@@ -331,7 +399,6 @@ def predict_data(data):
     data = data[FEATURES].copy()
 
     predictions = model.predict(data)
-
     probabilities = model.predict_proba(data)
 
     results = data.copy()
@@ -352,7 +419,7 @@ def predict_data(data):
 
 
 # =====================================================
-# 5. RESULT DISPLAY FUNCTION
+# 6. PREDICTION DISPLAY FUNCTION
 # =====================================================
 
 def display_prediction(result):
@@ -366,65 +433,53 @@ def display_prediction(result):
     )
 
     st.divider()
-
-    st.subheader("🔬 Analysis Results")
+    st.subheader("🔬 Prediction Results")
 
     if prediction.strip().lower() == "good":
 
-        st.markdown(f"""
+        render_html("""
         <div class="result-good">
-            <h2 style="color:#176B48 !important;">
-                ✓ GOOD QUALITY
-            </h2>
-            <p style="color:#176B48 !important;">
-                The model predicts the sample belongs
-                to the GOOD classification.
+            <h2>✓ GOOD QUALITY</h2>
+            <p>
+                The model predicts that this sample
+                belongs to the GOOD classification.
             </p>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     else:
 
-        st.markdown(f"""
+        render_html("""
         <div class="result-bad">
-            <h2 style="color:#B83F38 !important;">
-                ⚠ BAD QUALITY
-            </h2>
-            <p style="color:#A13F38 !important;">
-                The model predicts the sample belongs
-                to the BAD classification.
+            <h2>⚠ BAD QUALITY</h2>
+            <p>
+                The model predicts that this sample
+                belongs to the BAD classification.
             </p>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     st.write("")
 
-    col1, col2 = st.columns(2)
+    c1, c2 = st.columns(2)
 
-    col1.metric(
+    c1.metric(
         "Predicted Classification",
         prediction.upper()
     )
 
-    col2.metric(
+    c2.metric(
         "Model Confidence",
         f"{confidence:.2f}%"
     )
-
-    # Probability chart
-
-    score_columns = [
-        f"{label} Score (%)"
-        for label in model.classes_
-    ]
 
     probability_data = pd.DataFrame({
 
         "Class": model.classes_,
 
         "Probability (%)": [
-            result[column].iloc[0]
-            for column in score_columns
+            result[f"{label} Score (%)"].iloc[0]
+            for label in model.classes_
         ]
 
     })
@@ -443,10 +498,9 @@ def display_prediction(result):
     )
 
     fig.update_layout(
-        plot_bgcolor="white",
-        paper_bgcolor="white",
+        plot_bgcolor="#FFFFFF",
+        paper_bgcolor="#FFFFFF",
         font_color="#263D32",
-        title_font_color="#173D2D",
         yaxis_range=[0, 100],
         showlegend=False
     )
@@ -457,46 +511,42 @@ def display_prediction(result):
     )
 
     st.warning(
-        "Model confidence represents the model's "
-        "classification probability. It is not a direct "
-        "measurement of actual food safety, microbial "
-        "growth or spoilage."
+        "Model confidence is not a direct measurement "
+        "of actual food safety or microbial spoilage."
     )
 
 
 # =====================================================
-# 6. HEADER
+# 7. HEADER
 # =====================================================
 
-st.markdown(
-    '<div class="main-title">🍃 BioSpoil AI</div>',
-    unsafe_allow_html=True
-)
+render_html("""
+<div class="main-title">🍃 BioSpoil AI</div>
 
-st.markdown(
-    '<div class="subtitle">'
-    'AI-Based Food Quality Classification & Environmental Analytics'
-    '</div>',
-    unsafe_allow_html=True
-)
-
-st.write("")
+<div class="subtitle">
+AI-Based Food Quality Classification & Environmental Analytics
+</div>
+""")
 
 
 # =====================================================
-# 7. SIDEBAR NAVIGATION
+# 8. SIDEBAR
 # =====================================================
+
+render_html("""
+<style>
+[data-testid="stSidebar"] h1 {
+    color: #FFFFFF !important;
+}
+</style>
+""")
 
 st.sidebar.markdown(
     """
-    <h1 style="color:white !important;">
-        🍃 BioSpoil AI
-    </h1>
-    <p style="color:#C9E1D1 !important;">
-        Food Quality Intelligence
-    </p>
-    """,
-    unsafe_allow_html=True
+    # 🍃 BioSpoil AI
+
+    Food Quality Intelligence
+    """
 )
 
 st.sidebar.divider()
@@ -513,33 +563,22 @@ page = st.sidebar.radio(
 
 st.sidebar.divider()
 
-st.sidebar.markdown(
-    """
-    <p style="color:#D2E5D7 !important;">
-        <b>Powered by</b><br>
-        Python<br>
-        Scikit-learn<br>
-        Streamlit<br>
-        Plotly
-    </p>
-    """,
-    unsafe_allow_html=True
+st.sidebar.caption(
+    "Developed using Python, Scikit-learn and Streamlit"
 )
 
-st.sidebar.caption(
-    "AI Research Prototype | 2026"
-)
+st.sidebar.caption("AI Research Prototype | 2026")
 
 
 # =====================================================
-# 8. OVERVIEW / HOME PAGE
+# 9. HOME PAGE / OVERVIEW
 # =====================================================
 
 if page == "Overview":
 
     # HERO BANNER
 
-    st.markdown("""
+    render_html("""
     <div class="hero-box">
 
         <div class="hero-title">
@@ -551,13 +590,13 @@ if page == "Overview":
             Through Artificial Intelligence
         </p>
 
-        <p style="color:#D0E5D7 !important;">
+        <p class="hero-extra">
             Explore how environmental conditions can help
             predict food quality using Machine Learning.
         </p>
 
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
     # PLATFORM METRICS
 
@@ -565,78 +604,100 @@ if page == "Overview":
 
     c1, c2, c3, c4 = st.columns(4)
 
-    c1.metric(
-        "Food Categories",
-        "04",
-        "Food types"
-    )
-
-    c2.metric(
-        "Prediction Classes",
-        "02",
-        "Good / Bad"
-    )
-
-    c3.metric(
-        "Input Parameters",
-        "05",
-        "Environmental features"
-    )
-
-    c4.metric(
-        "ML Algorithm",
-        "RF",
-        "Random Forest"
-    )
+    c1.metric("Food Categories", "04")
+    c2.metric("Prediction Classes", "02")
+    c3.metric("Input Parameters", "05")
+    c4.metric("ML Algorithm", "RF")
 
     st.divider()
 
-    # FOOD CATEGORIES
+    # =================================================
+    # FOUR FRUIT IMAGE CARDS
+    # =================================================
 
     st.subheader("🍎 Explore Food Categories")
 
-    food_columns = st.columns(4)
+    st.write(
+        "Discover the four food categories analysed "
+        "by the BioSpoil AI classification model."
+    )
 
-    food_items = [
+    fruits = [
 
-        ("🍌", "Banana", "#FFF4D6"),
+        {
+            "name": "Banana",
+            "emoji": "🍌",
+            "description": "Tropical fruit",
+            "image": (
+                "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e"
+                "?auto=format&fit=crop&w=700&q=85"
+            )
+        },
 
-        ("🍊", "Orange", "#FFE8D6"),
+        {
+            "name": "Orange",
+            "emoji": "🍊",
+            "description": "Citrus fruit",
+            "image": (
+                "https://images.unsplash.com/photo-1547514701-42782101795e"
+                "?auto=format&fit=crop&w=700&q=85"
+            )
+        },
 
-        ("🍍", "Pineapple", "#F3F5D7"),
+        {
+            "name": "Pineapple",
+            "emoji": "🍍",
+            "description": "Tropical fruit",
+            "image": (
+                "https://images.unsplash.com/photo-1550258987-190a2d41a8ba"
+                "?auto=format&fit=crop&w=700&q=85"
+            )
+        },
 
-        ("🍅", "Tomato", "#FFE2DF")
+        {
+            "name": "Tomato",
+            "emoji": "🍅",
+            "description": "Fresh produce",
+            "image": (
+                "https://images.unsplash.com/photo-1546094096-0df4bcaaa337"
+                "?auto=format&fit=crop&w=700&q=85"
+            )
+        }
 
     ]
 
-    for col, item in zip(food_columns, food_items):
+    fruit_columns = st.columns(4, gap="medium")
+
+    for col, fruit in zip(fruit_columns, fruits):
 
         with col:
 
-            st.markdown(f"""
-            <div class="food-card"
-                 style="background:{item[2]};">
+            with st.container(border=True):
 
-                <div style="font-size:38px;">
-                    {item[0]}
+                st.image(
+                    fruit["image"],
+                    use_container_width=True
+                )
+
+                render_html(f"""
+                <div class="fruit-name">
+                    {fruit["emoji"]} {fruit["name"]}
                 </div>
 
-                <h4 style="color:#173D2D !important;">
-                    {item[1]}
-                </h4>
-
-            </div>
-            """, unsafe_allow_html=True)
+                <div class="fruit-description">
+                    {fruit["description"]}
+                </div>
+                """)
 
     st.divider()
 
-    # ENVIRONMENTAL PARAMETERS
+    # ENVIRONMENTAL INTELLIGENCE
 
     st.subheader("🌍 Environmental Intelligence")
 
     st.write(
-        "Explore the environmental features used by "
-        "the machine learning model."
+        "Explore the environmental features used "
+        "by the machine learning model."
     )
 
     parameter_info = {
@@ -681,10 +742,12 @@ if page == "Overview":
 
     details = parameter_info[selected_parameter]
 
-    st.info(
-        f"**{details[0]} | {details[1]}**\n\n"
-        f"{details[2]}"
-    )
+    render_html(f"""
+    <div class="parameter-card">
+        <h4>{details[0]} | {details[1]}</h4>
+        <p>{details[2]}</p>
+    </div>
+    """)
 
     st.divider()
 
@@ -694,67 +757,60 @@ if page == "Overview":
 
     step1, step2, step3 = st.columns(3)
 
-    with step1:
+    workflow = [
 
-        st.markdown("""
-        <div class="workflow-card">
+        (
+            "📥",
+            "01. Input",
+            "Enter food type and environmental measurements."
+        ),
 
-            <div style="font-size:35px;">📥</div>
+        (
+            "🧠",
+            "02. Analyse",
+            "The trained Random Forest model processes "
+            "the input features."
+        ),
 
-            <h3>01. Input</h3>
+        (
+            "📊",
+            "03. Predict",
+            "Obtain a Good/Bad classification "
+            "and model confidence."
+        )
 
-            <p>
-                Enter food type and environmental
-                measurements.
-            </p>
+    ]
 
-        </div>
-        """, unsafe_allow_html=True)
+    for col, item in zip(
+        [step1, step2, step3],
+        workflow
+    ):
 
-    with step2:
+        with col:
 
-        st.markdown("""
-        <div class="workflow-card">
+            render_html(f"""
+            <div class="workflow-card">
 
-            <div style="font-size:35px;">🧠</div>
+                <div style="font-size:35px;">
+                    {item[0]}
+                </div>
 
-            <h3>02. Analyse</h3>
+                <h3>{item[1]}</h3>
 
-            <p>
-                The trained Random Forest model
-                processes the input features.
-            </p>
+                <p>{item[2]}</p>
 
-        </div>
-        """, unsafe_allow_html=True)
-
-    with step3:
-
-        st.markdown("""
-        <div class="workflow-card">
-
-            <div style="font-size:35px;">📊</div>
-
-            <h3>03. Predict</h3>
-
-            <p>
-                Obtain a predicted Good/Bad class
-                and model confidence.
-            </p>
-
-        </div>
-        """, unsafe_allow_html=True)
+            </div>
+            """)
 
     st.divider()
 
-    # INTERACTIVE HOME PAGE PREDICTION
+    # HOMEPAGE INTERACTIVE PREDICTION
 
     st.subheader("🔬 Try BioSpoil AI")
 
     st.write(
-        "Enter a sample's environmental conditions "
-        "and explore the model prediction directly "
-        "from the homepage."
+        "Enter environmental measurements and explore "
+        "the model prediction directly from the homepage."
     )
 
     with st.form("home_prediction_form"):
@@ -764,19 +820,19 @@ if page == "Overview":
         with col1:
 
             demo_fruit = st.selectbox(
-                "Select Food Category",
+                "🍎 Select Food Category",
                 FRUITS,
                 key="home_fruit"
             )
 
             demo_temp = st.number_input(
-                "Temperature (°C)",
+                "🌡️ Temperature (°C)",
                 value=24.0,
                 key="home_temp"
             )
 
             demo_humidity = st.number_input(
-                "Humidity (%)",
+                "💧 Humidity (%)",
                 min_value=0.0,
                 max_value=100.0,
                 value=90.0,
@@ -786,19 +842,19 @@ if page == "Overview":
         with col2:
 
             demo_light = st.number_input(
-                "Light (dataset units)",
+                "☀️ Light (dataset units)",
                 value=12.5,
                 key="home_light"
             )
 
             demo_co2 = st.number_input(
-                "CO₂ (dataset units)",
+                "🌫️ CO₂ (dataset units)",
                 value=370.0,
                 key="home_co2"
             )
 
         home_submitted = st.form_submit_button(
-            "🍃 Analyse Sample",
+            "🍃 Analyse Food Sample",
             use_container_width=True
         )
 
@@ -807,13 +863,9 @@ if page == "Overview":
         demo_data = pd.DataFrame([{
 
             "Fruit": demo_fruit,
-
             "Temp": demo_temp,
-
             "Humid (%)": demo_humidity,
-
             "Light (Fux)": demo_light,
-
             "CO2 (pmm)": demo_co2
 
         }])
@@ -832,14 +884,14 @@ if page == "Overview":
 
     st.warning(
         "BioSpoil AI is a research prototype. "
-        "Its predictions represent dataset-defined "
-        "classification labels and do not establish "
-        "actual food safety or microbial spoilage."
+        "Predictions represent dataset-defined classification "
+        "labels and do not establish actual food safety "
+        "or microbial spoilage."
     )
 
 
 # =====================================================
-# 9. SINGLE PREDICTION PAGE
+# 10. SINGLE PREDICTION
 # =====================================================
 
 elif page == "Single Prediction":
@@ -847,12 +899,8 @@ elif page == "Single Prediction":
     st.header("🔬 Individual Food Classification")
 
     st.write(
-        "Enter environmental measurements to classify "
-        "an individual food sample."
-    )
-
-    st.markdown(
-        "**Step 1 — Enter Sample Information**"
+        "Enter environmental conditions to obtain "
+        "an AI-based classification of your food sample."
     )
 
     with st.form("single_prediction_form"):
@@ -900,13 +948,9 @@ elif page == "Single Prediction":
         sample = pd.DataFrame([{
 
             "Fruit": fruit,
-
             "Temp": temp,
-
             "Humid (%)": humidity,
-
             "Light (Fux)": light,
-
             "CO2 (pmm)": co2
 
         }])
@@ -923,7 +967,7 @@ elif page == "Single Prediction":
 
 
 # =====================================================
-# 10. BATCH ANALYSIS PAGE
+# 11. BATCH ANALYSIS
 # =====================================================
 
 elif page == "Batch Analysis":
@@ -936,14 +980,14 @@ elif page == "Batch Analysis":
     )
 
     st.info(
-        "Your CSV must contain all five original model "
-        "input features."
+        "Your CSV must contain all five original "
+        "model input features."
     )
 
     st.code(", ".join(FEATURES))
 
     uploaded_file = st.file_uploader(
-        "📤 Upload your CSV dataset",
+        "📤 Upload CSV Dataset",
         type=["csv"]
     )
 
@@ -961,10 +1005,8 @@ elif page == "Batch Analysis":
             )
 
             missing = [
-
                 col for col in FEATURES
                 if col not in batch.columns
-
             ]
 
             if missing:
@@ -975,18 +1017,14 @@ elif page == "Batch Analysis":
 
             elif batch.empty:
 
-                st.error(
-                    "The uploaded CSV contains no data."
-                )
+                st.error("The uploaded CSV contains no data.")
 
             elif st.button(
                 "🚀 Run Batch Prediction",
                 use_container_width=True
             ):
 
-                results = predict_data(batch)
-
-                st.session_state["batch_results"] = results
+                st.session_state["batch_results"] = predict_data(batch)
 
             if "batch_results" in st.session_state:
 
@@ -1010,20 +1048,9 @@ elif page == "Batch Analysis":
 
                 c1, c2, c3 = st.columns(3)
 
-                c1.metric(
-                    "Total Samples",
-                    total_samples
-                )
-
-                c2.metric(
-                    "Good Samples",
-                    good_count
-                )
-
-                c3.metric(
-                    "Bad Samples",
-                    bad_count
-                )
+                c1.metric("Total Samples", total_samples)
+                c2.metric("Good Samples", good_count)
+                c3.metric("Bad Samples", bad_count)
 
                 st.dataframe(
                     results,
@@ -1057,7 +1084,8 @@ elif page == "Batch Analysis":
                 )
 
                 fig.update_layout(
-                    paper_bgcolor="white",
+                    paper_bgcolor="#FFFFFF",
+                    plot_bgcolor="#FFFFFF",
                     font_color="#263D32"
                 )
 
@@ -1065,8 +1093,6 @@ elif page == "Batch Analysis":
                     fig,
                     use_container_width=True
                 )
-
-                # Download report
 
                 csv = results.to_csv(
                     index=False
@@ -1082,13 +1108,11 @@ elif page == "Batch Analysis":
 
         except Exception as e:
 
-            st.error(
-                f"Batch analysis error: {e}"
-            )
+            st.error(f"Batch analysis error: {e}")
 
 
 # =====================================================
-# 11. ABOUT THE MODEL PAGE
+# 12. ABOUT THE MODEL
 # =====================================================
 
 elif page == "About the Model":
@@ -1096,9 +1120,9 @@ elif page == "About the Model":
     st.header("🧠 About the Machine Learning Model")
 
     st.write(
-        "BioSpoil AI uses a supervised machine learning "
-        "approach to classify food samples based on "
-        "environmental input parameters."
+        "BioSpoil AI uses supervised machine learning "
+        "to classify food samples using environmental "
+        "input parameters."
     )
 
     st.divider()
@@ -1110,8 +1134,7 @@ elif page == "About the Model":
     st.write(
         "Random Forest is an ensemble learning algorithm "
         "that combines multiple decision trees to perform "
-        "classification. It uses the collective predictions "
-        "of these trees to generate a final output."
+        "classification."
     )
 
     st.divider()
@@ -1154,101 +1177,98 @@ elif page == "About the Model":
 
     with c1:
 
-        st.markdown("""
+        render_html("""
         <div class="result-good">
-
-            <h2 style="color:#176B48 !important;">
-                ✓ GOOD
-            </h2>
-
-            <p style="color:#176B48 !important;">
-                Model-defined Good classification.
-            </p>
-
+            <h2>✓ GOOD</h2>
+            <p>Model-defined Good classification.</p>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     with c2:
 
-        st.markdown("""
+        render_html("""
         <div class="result-bad">
-
-            <h2 style="color:#B83F38 !important;">
-                ⚠ BAD
-            </h2>
-
-            <p style="color:#A13F38 !important;">
-                Model-defined Bad classification.
-            </p>
-
+            <h2>⚠ BAD</h2>
+            <p>Model-defined Bad classification.</p>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     st.divider()
 
     st.subheader("⚙️ Model Architecture")
 
     st.code("""
-    Environmental Input
-            |
-            v
-    Feature Processing
-            |
-            v
-    Random Forest Classifier
-            |
-            v
-    Class Probability Estimation
-            |
-            v
-       GOOD / BAD
+Environmental Input
+        |
+        v
+Feature Processing
+        |
+        v
+Random Forest Classifier
+        |
+        v
+Class Probability Estimation
+        |
+        v
+GOOD / BAD
     """)
 
     st.divider()
 
     st.subheader("Technology Stack")
 
-    tech1, tech2, tech3 = st.columns(3)
+    c1, c2, c3 = st.columns(3)
 
-    tech1.metric("Language", "Python")
-
-    tech2.metric("ML Framework", "Scikit-learn")
-
-    tech3.metric("Interface", "Streamlit")
+    c1.metric("Programming", "Python")
+    c2.metric("ML Framework", "Scikit-learn")
+    c3.metric("Interface", "Streamlit")
 
     st.info(
         "Model performance should be interpreted "
         "within the original dataset. External validation "
-        "is required before making generalizable claims."
+        "is needed before making generalizable claims."
     )
 
 
 # =====================================================
-# 12. FOOTER
+# 13. FOOTER
 # =====================================================
 
 st.divider()
 
-st.markdown("""
+render_html("""
 <div class="footer-text">
 
-    🍃 <b>BioSpoil AI</b><br>
+    <b>🍃 BioSpoil AI</b>
 
-    AI-Based Food Quality Classification & Environmental Analytics<br>
+    <p>
+        AI-Based Food Quality Classification
+        & Environmental Analytics
+    </p>
 
-    Machine Learning Research Prototype | 2026
+    <p>
+        Machine Learning Research Prototype | 2026
+    </p>
 
 </div>
-""", unsafe_allow_html=True)
-
-
-
-
-
-  
-  
+""")
 
  
-  
 
-      
+
+
+
+
+
+   
+
+   
+
+ 
+   
+
+
+    
+
+  
+         
