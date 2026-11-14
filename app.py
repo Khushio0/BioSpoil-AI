@@ -1,8 +1,8 @@
-
 import streamlit as st
 import pandas as pd
 import joblib
 import plotly.express as px
+from pathlib import Path
 
 # ---------------- CONFIGURATION ----------------
 
@@ -12,7 +12,11 @@ st.set_page_config(
     layout="wide"
 )
 
-MODEL_PATH = "/content/BioSpoil_AI_Best_Model.pkl"
+# Locate the model in the same directory as app.py
+BASE_DIR = Path(__file__).resolve().parent
+
+MODEL_FILENAME = "BioSpoil_AI_Best_Model.pkl"
+MODEL_PATH = BASE_DIR / MODEL_FILENAME
 
 FEATURES = [
     "Fruit",
@@ -58,13 +62,45 @@ div[data-testid="stMetric"] {
 
 @st.cache_resource
 def load_model():
+
+    global MODEL_PATH
+
+    # Handle capitalization differences in filenames
+    if not MODEL_PATH.is_file():
+
+        matching_files = [
+            file for file in BASE_DIR.iterdir()
+            if file.is_file()
+            and file.name.lower() == MODEL_FILENAME.lower()
+        ]
+
+        if matching_files:
+            MODEL_PATH = matching_files[0]
+
+    if not MODEL_PATH.is_file():
+        raise FileNotFoundError(
+            f"Model file '{MODEL_FILENAME}' was not found. "
+            f"Please ensure it is uploaded to your GitHub "
+            f"repository in the same folder as app.py. "
+            f"Application directory: {BASE_DIR}"
+        )
+
     return joblib.load(MODEL_PATH)
+
 
 try:
     model = load_model()
+
 except Exception as e:
-    st.error(f"Could not load model: {e}")
+    st.error(f"Could not load trained model: {e}")
+
+    st.info(
+        "Check that BioSpoil_AI_Best_Model.pkl "
+        "exists in your GitHub repository alongside app.py."
+    )
+
     st.stop()
+
 
 # ---------------- HEADER ----------------
 
@@ -96,7 +132,10 @@ page = st.sidebar.radio(
 )
 
 st.sidebar.divider()
-st.sidebar.caption("Developed using Python, Scikit-learn and Streamlit")
+
+st.sidebar.caption(
+    "Developed using Python, Scikit-learn and Streamlit"
+)
 
 # ---------------- PREDICTION FUNCTION ----------------
 
@@ -110,16 +149,19 @@ def predict_data(data):
     results = data.copy()
 
     results["Predicted Class"] = predictions
+
     results["Model Confidence (%)"] = (
         probabilities.max(axis=1) * 100
     ).round(2)
 
     for i, label in enumerate(model.classes_):
+
         results[f"{label} Score (%)"] = (
             probabilities[:, i] * 100
         ).round(2)
 
     return results
+
 
 # ---------------- OVERVIEW ----------------
 
@@ -153,7 +195,9 @@ if page == "Overview":
             "Light",
             "CO₂"
         ],
+
         "Feature": FEATURES,
+
         "Type": [
             "Categorical",
             "Numerical",
@@ -163,13 +207,17 @@ if page == "Overview":
         ]
     })
 
-    st.dataframe(parameter_data, use_container_width=True)
+    st.dataframe(
+        parameter_data,
+        use_container_width=True
+    )
 
     st.info(
         "This prototype predicts dataset-defined Good/Bad "
         "labels. It does not directly measure microbial growth "
         "or establish food safety."
     )
+
 
 # ---------------- SINGLE PREDICTION ----------------
 
@@ -231,52 +279,81 @@ elif page == "Single Prediction":
             "CO2 (pmm)": co2
         }])
 
-        result = predict_data(sample)
+        try:
 
-        prediction = result["Predicted Class"].iloc[0]
-        confidence = result["Model Confidence (%)"].iloc[0]
+            result = predict_data(sample)
 
-        st.divider()
-        st.subheader("Prediction Results")
+            prediction = result[
+                "Predicted Class"
+            ].iloc[0]
 
-        if prediction == "Good":
-            st.success("Predicted Classification: GOOD")
-        else:
-            st.error("Predicted Classification: BAD")
+            confidence = result[
+                "Model Confidence (%)"
+            ].iloc[0]
 
-        col1, col2 = st.columns(2)
+            st.divider()
 
-        col1.metric("Predicted Class", prediction)
-        col2.metric("Model Confidence", f"{confidence:.2f}%")
+            st.subheader("Prediction Results")
 
-        score_columns = [
-            f"{label} Score (%)"
-            for label in model.classes_
-        ]
+            if prediction == "Good":
+                st.success(
+                    "Predicted Classification: GOOD"
+                )
 
-        probability_data = pd.DataFrame({
-            "Class": model.classes_,
-            "Model Score (%)": [
-                result[column].iloc[0]
-                for column in score_columns
+            else:
+                st.error(
+                    "Predicted Classification: BAD"
+                )
+
+            col1, col2 = st.columns(2)
+
+            col1.metric(
+                "Predicted Class",
+                prediction
+            )
+
+            col2.metric(
+                "Model Confidence",
+                f"{confidence:.2f}%"
+            )
+
+            score_columns = [
+                f"{label} Score (%)"
+                for label in model.classes_
             ]
-        })
 
-        fig = px.bar(
-            probability_data,
-            x="Class",
-            y="Model Score (%)",
-            color="Class",
-            title="Predicted Class Scores",
-            text_auto=".2f"
-        )
+            probability_data = pd.DataFrame({
+                "Class": model.classes_,
 
-        st.plotly_chart(fig, use_container_width=True)
+                "Model Score (%)": [
+                    result[column].iloc[0]
+                    for column in score_columns
+                ]
+            })
 
-        st.warning(
-            "Model confidence is not a measure of actual food "
-            "safety or microbial spoilage."
-        )
+            fig = px.bar(
+                probability_data,
+                x="Class",
+                y="Model Score (%)",
+                color="Class",
+                title="Predicted Class Scores",
+                text_auto=".2f"
+            )
+
+            st.plotly_chart(
+                fig,
+                use_container_width=True
+            )
+
+            st.warning(
+                "Model confidence is not a measure of actual "
+                "food safety or microbial spoilage."
+            )
+
+        except Exception as e:
+
+            st.error(f"Prediction error: {e}")
+
 
 # ---------------- BATCH ANALYSIS ----------------
 
@@ -300,7 +377,11 @@ elif page == "Batch Analysis":
         batch = pd.read_csv(uploaded_file)
 
         st.subheader("Uploaded Dataset")
-        st.dataframe(batch.head(), use_container_width=True)
+
+        st.dataframe(
+            batch.head(),
+            use_container_width=True
+        )
 
         missing = [
             col for col in FEATURES
@@ -362,7 +443,10 @@ elif page == "Batch Analysis":
 
             except Exception as e:
 
-                st.error(f"Prediction error: {e}")
+                st.error(
+                    f"Prediction error: {e}"
+                )
+
 
 # ---------------- MODEL INFORMATION ----------------
 
@@ -412,6 +496,7 @@ Good / Bad Prediction
         "needed before making generalizable claims."
     )
 
+
 # ---------------- FOOTER ----------------
 
 st.divider()
@@ -420,3 +505,12 @@ st.caption(
     "BioSpoil AI | Research Prototype | "
     "Machine Learning-Based Food Quality Classification"
 )
+
+
+
+      
+
+    
+   
+
+      
